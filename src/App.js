@@ -10,7 +10,7 @@ class App extends Component {
   render() {
     const helloWorld = {
       title: 'Welcome to the Road to learn React',
-      message: 'React is awesome!'
+      message: 'React is awesome! With Hot Module Reloading!'
     };
 
     const user = {
