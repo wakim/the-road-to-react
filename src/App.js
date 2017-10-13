@@ -2,17 +2,27 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+function greetUser(user) {
+  return <p>Hello {user.firstName} {user.lastName}</p>;
+}
+
 class App extends Component {
   render() {
+    const helloWorld = {
+      title: 'Welcome to the Road to learn React',
+      message: 'React is awesome!'
+    };
+
+    const user = {
+      firstName: 'Wakim',
+      lastName: 'Jraige'
+    };
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <h1>{helloWorld.title}</h1>
+        <h2>{helloWorld.message}</h2>
+        {greetUser(user)}
       </div>
     );
   }
