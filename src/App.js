@@ -23,13 +23,7 @@ const list = [
   }
 ];
 
-function Search(props) {
-  const {
-    value,
-    onChange,
-    children,
-  } = props;
-
+function Search({value, onChange, children}) {
   return (
     <form>
       {children}
@@ -41,30 +35,35 @@ function Search(props) {
   );
 }
 
-function Table(props) {
-  const {
-    list,
-    pattern,
-    onRemove
-  } = props;
-
+function Table({list, pattern, onRemove}) {
   const isSearched = item => !pattern || item.title.toLowerCase().includes(pattern.toLowerCase());
 
+  const largeColumn = {
+    width: '40%',
+  };
+  const midColumn = {
+    width: '30%',
+  };
+  const smallColumn = {
+    width: '10%',
+  };
+
   return (
-    <div>
+    <div className="table">
       {
         list.sort((item1, item2) => item1.order - item2.order)
             .filter(isSearched)
             .map(item =>
-              <div key={item.objectID}>
-                <span>
+              <div key={item.objectID} className="table-row">
+                <span style={largeColumn}>
                   <a href={item.url}>{item.title}</a>
                 </span>
-                <span>{item.author}</span>
-                <span>{item.numComments}</span>
-                <span>{item.points}</span>
-                <span>
+                <span style={midColumn}>{item.author}</span>
+                <span style={smallColumn}>{item.numComments}</span>
+                <span style={smallColumn}>{item.points}</span>
+                <span style={smallColumn}>
                   <button
+                    className="button-inline"
                     onClick={() => onRemove(item.objectID)}>Remove</button>
                 </span>
               </div>)
@@ -115,7 +114,7 @@ class NewArticle extends Component {
         <input type="text" required="required" value={url} onChange={(e) => this.onTextChanged(e, "url")} placeholder="URL" />
         <input type="text" required="required" value={title} onChange={(e) => this.onTextChanged(e, "title")} placeholder="Title" />
         <input type="text" required="required" value={author} onChange={(e) => this.onTextChanged(e, "author")} placeholder="Author" />
-        <input type="submit" value={children} />
+        <input type="submit" value={children} className="button" />
       </form>
     );
   }
@@ -173,15 +172,19 @@ export default class App extends Component {
     } = this.state;
 
     return (
-      <div className="App">
-        <Search
-          value={searchTerm}
-          onChange={this.onSearchChange}>Search Article: </Search>
+      <div className="page">
+        <div className="interactions">
+          <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}>Search Article: </Search>
+        </div>
         <Table
           list={list}
           pattern={searchTerm}
           onRemove={this.onRemove} />
-        <NewArticle onAdd={this.onAdd}>Add new article</NewArticle>
+        <div className="interactions">
+          <NewArticle onAdd={this.onAdd}>Add new article</NewArticle>
+        </div>
       </div>
     );
   }
