@@ -86,11 +86,15 @@ class NewArticle extends Component {
   }
 
   onTextChanged(event, attr) {
-    const newArticle = this.state.newArticle;
+    const target = event.target;
 
-    newArticle[attr] = event.target.value;
+    this.setState((prevState, props) => {
+      const newArticle = prevState.newArticle;
 
-    this.setState({ newArticle });
+      newArticle[attr] = target.value;
+
+      return { newArticle };
+    });
   }
 
   onSubmit(e) {
