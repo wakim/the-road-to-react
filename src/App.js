@@ -1,43 +1,28 @@
 import React, { Component } from 'react';
+import { DebounceInput } from 'react-debounce-input';
+
 import logo from './logo.svg';
 import './App.css';
 
-const list = [
-  {
-    title: 'React',
-    url: 'https://facebook.github.io/react/',
-    author: 'Jordan Walke',
-    numComments: 3,
-    points: 4,
-    objectID: 0,
-    order: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://github.com/reactjs/redux',
-    author: 'Dan Abramov, Andrew Clark',
-    numComments: 2,
-    points: 100,
-    objectID: 1,
-    order: 1,
-  }
-];
+const DEFAULT_QUERY = 'redux';
+const PATH_BASE = 'https://hn.algolia.com/api/v1';
+const PATH_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
 
 function Search({value, onChange, children}) {
   return (
     <form>
       {children}
-      <input
+      <DebounceInput
         type="text"
+        debounceTimeout={300}
         value={value}
         onChange={(e) => onChange(e.target.value)} />
     </form>
   );
 }
 
-function Table({list, pattern, onRemove}) {
-  const isSearched = item => !pattern || item.title.toLowerCase().includes(pattern.toLowerCase());
-
+function Table({list = [], onRemove}) {
   const largeColumn = {
     width: '40%',
   };
@@ -50,23 +35,28 @@ function Table({list, pattern, onRemove}) {
 
   return (
     <div className="table">
+      <div className="table-header">
+        <span style={largeColumn}>Title</span>
+        <span style={midColumn}>Author</span>
+        <span style={smallColumn}>Comments</span>
+        <span style={smallColumn}>Points</span>
+        <span style={smallColumn}></span>
+      </div>
       {
-        list.sort((item1, item2) => item1.order - item2.order)
-            .filter(isSearched)
-            .map(item =>
-              <div key={item.objectID} className="table-row">
-                <span style={largeColumn}>
-                  <a href={item.url}>{item.title}</a>
-                </span>
-                <span style={midColumn}>{item.author}</span>
-                <span style={smallColumn}>{item.numComments}</span>
-                <span style={smallColumn}>{item.points}</span>
-                <span style={smallColumn}>
-                  <button
-                    className="button-inline"
-                    onClick={() => onRemove(item.objectID)}>Remove</button>
-                </span>
-              </div>)
+        list.map(item =>
+          <div key={item.objectID} className="table-row">
+            <span style={largeColumn}>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span style={midColumn}>{item.author}</span>
+            <span style={smallColumn}>{item.num_comments}</span>
+            <span style={smallColumn}>{item.points}</span>
+            <span style={smallColumn}>
+              <button
+                className="button-inline"
+                onClick={() => onRemove(item.objectID)}>Remove</button>
+            </span>
+          </div>)
       }
      </div>
   );
@@ -78,30 +68,53 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      list,
-      searchTerm: '',
+      result: null,
+      searchTerm: DEFAULT_QUERY,
     };
 
+    this.setSearchTopstories = this.setSearchTopstories.bind(this);
+    this.fetchSearchTopstories = this.fetchSearchTopstories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onRemove = this.onRemove.bind(this);
   }
 
+  setSearchTopstories(result) {
+    this.setState({ result });
+  }
+
+  fetchSearchTopstories(searchTerm) {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+    .then(response => response.json())
+    .then(result => this.setSearchTopstories(result))
+    .catch(e => e);
+  }
+
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopstories(searchTerm);
+  }
+
   onRemove(objectID) {
     const isNotId = item => item.objectID !== objectID;
-    const updatedList = this.state.list.filter(isNotId);
+    const updatedHits = this.state.result.hits.filter(isNotId);
 
-    this.setState({ list: updatedList });
+    this.setState({result: {...this.state.result, hits: updatedHits}});
   }
 
   onSearchChange(searchTerm) {
     this.setState({ searchTerm });
+    this.fetchSearchTopstories(searchTerm);
   }
 
   render() {
     const {
-      list,
+      result,
       searchTerm,
     } = this.state;
+
+    if (!result) {
+      return null;
+    }
 
     return (
       <div className="page">
@@ -111,8 +124,7 @@ export default class App extends Component {
             onChange={this.onSearchChange}>Search Article: </Search>
         </div>
         <Table
-          list={list}
-          pattern={searchTerm}
+          list={result.hits}
           onRemove={this.onRemove} />
       </div>
     );
