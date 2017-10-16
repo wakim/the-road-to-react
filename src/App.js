@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { DebounceInput } from 'react-debounce-input';
+
+import Search from './components/Search';
+import Table from './components/Table';
 
 import logo from './logo.svg';
 import './App.css';
@@ -15,59 +17,6 @@ const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_TAGS = 'tags=';
 const PARAM_HPP = 'hitsPerPage=';
-
-function Search({value, onChange, children}) {
-  return (
-    <form>
-      {children}
-      <DebounceInput
-        type="text"
-        debounceTimeout={300}
-        value={value}
-        onChange={(e) => onChange(e.target.value)} />
-    </form>
-  );
-}
-
-function Table({list = [], onRemove}) {
-  const largeColumn = {
-    width: '40%',
-  };
-  const midColumn = {
-    width: '30%',
-  };
-  const smallColumn = {
-    width: '10%',
-  };
-
-  return (
-    <div className="table">
-      <div className="table-header">
-        <span style={largeColumn}>Title</span>
-        <span style={midColumn}>Author</span>
-        <span style={smallColumn}>Comments</span>
-        <span style={smallColumn}>Points</span>
-        <span style={smallColumn}></span>
-      </div>
-      {
-        list.map(item =>
-          <div key={item.objectID} className="table-row">
-            <span style={largeColumn}>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span style={midColumn}>{item.author}</span>
-            <span style={smallColumn}>{item.num_comments}</span>
-            <span style={smallColumn}>{item.points}</span>
-            <span style={smallColumn}>
-              <button
-                className="button-inline"
-                onClick={() => onRemove(item.objectID)}>Remove</button>
-            </span>
-          </div>)
-      }
-     </div>
-  );
-}
 
 export default class App extends Component {
 
