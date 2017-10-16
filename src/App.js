@@ -108,7 +108,6 @@ export default class App extends Component {
             list={list}
             onRemove={this.onRemove} />
         }
-
         <div className="interactions">
           <button onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}>More</button>
         </div>
